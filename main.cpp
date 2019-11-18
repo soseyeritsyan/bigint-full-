@@ -1,20 +1,14 @@
 #include "bigint.hpp"
 int main()
 {
-	string str;
-	cout<< "str"<<endl;
-	cin>>str;
-        bigint s(str);
-        s.print();
-
 	string a;
-	cout<<"input a"<<endl;
-	cin>>a;
+	cout << "input a"<<endl;
+	cin >> a;
 	bigint A(a);
 
 	string b;
-	cout<<"input b"<<endl;
-	cin>>b;
+	cout << "input b"<<endl;
+	cin >> b;
 	bigint B(b);
 	A.print();
 	B.print();
@@ -24,7 +18,6 @@ int main()
                 cout<<"A < B"<<endl;
         if ( A == B )
                 cout<<"A == B"<<endl;
-
 
 	bigint C;
 	C = A + B;
