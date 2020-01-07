@@ -1,17 +1,17 @@
 #include "bigint.hpp"
 int main()
 {
-	string a;
-	cout << "input a"<<endl;
-	cin >> a;
-	bigint A(a);
+	bigint A;
+	cout << "input A" << endl;
+	cin >> A;
 
-	string b;
-	cout << "input b"<<endl;
-	cin >> b;
-	bigint B(b);
-	A.print();
-	B.print();
+	bigint B;
+	cout << "input B" << endl;
+	cin >> B;
+
+        cout << A << endl;
+        cout << B << endl;
+
         if ( A > B )
                 cout<<"A > B"<<endl;
         if ( A < B )
@@ -19,21 +19,18 @@ int main()
         if ( A == B )
                 cout<<"A == B"<<endl;
 
+
 	bigint C;
 	C = A + B;
-        cout << "A + B = ";
-	C.print();
+        cout << "A + B = " << C << endl;
 
 	C = A - B;
-        cout << "A - B = ";
-	C.print();
+        cout << "A - B = " << C << endl;
 
 	C = A * B;
-        cout << "A * B = ";
-	C.print();
+        cout << "A * B = " << C << endl;
 
 	C = A / B;
-        cout << "A / B = ";
-	C.print();
+        cout << "A / B = " << C << endl;
 	return 0;
 }

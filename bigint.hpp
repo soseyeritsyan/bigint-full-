@@ -20,6 +20,9 @@ class bigint
 
 	friend bool is_zero(vector<unsigned char> & v );
         friend void unar_minus_vec( vector<unsigned char> & res );
+	friend bool big_vec( vector<unsigned char> & v1 , vector<unsigned char> & v2 );
+	friend bool less_vec( vector<unsigned char> & v1 , vector<unsigned char> & v2 );
+	friend bool eq_vec( vector<unsigned char> & v1 , vector<unsigned char> & v2 );
 
 
 	public:
@@ -27,14 +30,6 @@ class bigint
 	bigint();
 	bigint( string & s );
 	bigint( vector<unsigned char> & v);
-	void print()
-	{
-		for ( int i = 0; i < dig.size() ; i++ ) {
-			printf("%d",dig[i]);
-                        cout<<" ";
-		}
-		cout<<endl;
-	}
 //	~bigint();
 	friend bigint operator+( bigint & ths , bigint & oth );
 	friend bigint operator-( bigint & ths , bigint & oth );
@@ -50,6 +45,7 @@ class bigint
 	friend bool operator!=( bigint & ths , bigint & oth );
 
 	friend bigint operator-( bigint & oth );// const;
+        friend int size_bigint( bigint & ths );
 
 	friend void operator+=( bigint & ths , bigint& oth );//
 	friend void operator-=( bigint & ths , bigint& oth );

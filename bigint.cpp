@@ -65,7 +65,6 @@ void to_bigint ( string & a , vector<unsigned char> & res )
 	bool sign_ = false;
 	if ( a[0] == '-' ) {
 		sign_ = true;
-                cout << "minusov tiv" << endl;
 		a.erase(a.begin());
 	}
 	sys256(a,res);
@@ -84,15 +83,32 @@ bigint::bigint()
 bigint::bigint( string & s )
 {
 	to_bigint( s , dig );
-        //sys256(s,dig);
-        //reverse(dig.begin(),dig.end());
 }
 
 bigint::bigint( vector<unsigned char> & v )
 {
 	dig = v;
 }
-
+bool big_vec( vector<unsigned char> & v1 , vector<unsigned char> & v2 )
+{
+        if ( v1.size() > v2.size() ) {
+                return true;
+        }
+        if ( v1.size() < v2.size() ) {
+                return false;
+        }
+        if ( v1.size() == v2.size() ) {
+                int i = 0;
+                for ( i = 0 ; i < v1.size(); i++ ) {
+                        if( (int)(v1[i]) < (int)(v2[i]) ) {
+                                return false;
+                        }
+                        if ( (int)(v1[i]) > (int)(v2[i]) ) {
+                                return true;
+                        }
+                }
+        }
+}
 void minus_vec( vector<unsigned char> & v1 , vector<unsigned char> & v2 , vector<unsigned char> & res )
 {
         int c = 0;
@@ -136,6 +152,15 @@ void mult_vec( vector<unsigned char> & v1 , vector<unsigned char> & v2 , vector<
         }
         del_zero(res);
 }
+int size_bigint( bigint & ths )
+{
+        if ( ths.dig[0] == 0 ) {
+                return ths.dig.size() - 1;
+        }
+        else {
+                return ths.dig.size();
+        }
+}
 bool is_zero(vector<unsigned char> & v )
 {
         if ( v.size() == 0 && v[0] == 0 ) {
@@ -160,7 +185,7 @@ void plus_vec( vector<unsigned char> & v1 , vector<unsigned char> & v2 , vector<
 {
         int c = 0;
         int k ;
-        for ( int i = v1.size() - 1 , j = v2.size() - 1; i >= 0 , j >= 0  ; i-- , j-- ) {
+        for ( int i = v1.size() - 1 , j = v2.size() - 1; ; i-- , j-- ) {
                 if ( i >= 0 && j >= 0) {
                         k = (int)(v1[i]) + (int)(v2[j]) + c ;
                         if ( k >= 256 ) {
@@ -171,7 +196,7 @@ void plus_vec( vector<unsigned char> & v1 , vector<unsigned char> & v2 , vector<
                                 c = 0;
                         }
                 }
-                if ( i >= 0 && j < 0 ) {
+                else if ( i >= 0 && j < 0 ) {
                         k = (int)(v1[i]) + c ;
                         if ( k >= 256 ) {
                                 k = k - 256;
@@ -181,12 +206,26 @@ void plus_vec( vector<unsigned char> & v1 , vector<unsigned char> & v2 , vector<
                                 c = 0;
                         }
                 }
+
+                else if ( j >= 0 && i < 0 ) {
+                        k = (int)(v2[j]) + c ;
+                        if ( k >= 256 ) {
+                                k = k - 256;
+                                c = 1;
+                        }
+                        else {
+                                c = 0;
+                        }
+                }
+                else if ( i < 0 && j < 0 ) {
+                        break;
+                }
                 res.push_back(k);
         }
         reverse(res.begin(), res.end());
 }
 
-bigint operator+( bigint & ths , bigint & oth ) //gumarum
+bigint operator+( bigint & ths , bigint & oth )
 {
         vector<unsigned char> r;
         if ( is_zero( ths.dig ) ) {
@@ -196,24 +235,40 @@ bigint operator+( bigint & ths , bigint & oth ) //gumarum
                 return ths;
         }
         else if ( ths.dig[0] == 0 && oth.dig[0] != 0 ) {
-                vector<unsigned char> a = ths.dig;
-                vector<unsigned char> b = oth.dig;
-                unar_minus_vec(a);
-                minus_vec( b , a , r );
-                return bigint(r);
+		vector<unsigned char> a = ths.dig;
+		vector<unsigned char> b = oth.dig;
+		unar_minus_vec(a);
+		if( big_vec(b,a)){
+			minus_vec( b , a , r );
+			return bigint(r);
+		}
+		else {
+			minus_vec( a , b , r );
+			unar_minus_vec(r);
+			return bigint(r);
+		}
+
         }
         else if ( ths.dig[0] != 0 && oth.dig[0] == 0 ) {
-                vector<unsigned char> a = ths.dig;
-                vector<unsigned char> b = oth.dig;
-                b.erase(b.begin());
-                minus_vec( a , b , r );
-                return bigint(r);
+		vector<unsigned char> a = ths.dig;
+		vector<unsigned char> b = oth.dig;
+		unar_minus_vec(b);
+		if( big_vec(a,b)){
+			minus_vec( a, b, r );
+			return bigint(r);
+		}
+		else {
+			minus_vec( b, a, r );
+			unar_minus_vec(r);
+			return bigint(r);
+		}
+
         }
         else if ( ths.dig[0] == 0 && oth.dig[0] == 0 ) {
                 vector<unsigned char> a = ths.dig;
                 vector<unsigned char> b = oth.dig;
-                a.erase(a.begin());
-                b.erase(b.begin());
+                unar_minus_vec(a);
+                unar_minus_vec(b);
                 plus_vec( a , b , r );
                 unar_minus_vec(r);
                 return bigint(r);
@@ -318,9 +373,17 @@ bigint operator*( bigint & ths , bigint& oth )
         }
         return bigint(r);
 }
-bigint operator/( bigint & ths , bigint& oth )//bajanum
+bigint operator/( bigint & ths , bigint& oth )
 {
-        if ( ths < oth ) {
+	vector<unsigned char> v1 = ths.dig;
+	vector<unsigned char> v2 = oth.dig;
+	if( v1[0] == 0 ) {
+		unar_minus_vec(v1);
+	}
+	if( v2[0] == 0 ) {
+		unar_minus_vec(v2);
+	}
+        if ( big_vec(v2, v1) ) {
                 string s = "0";
                 return bigint(s);
         }
@@ -521,22 +584,22 @@ bool operator!=( bigint & ths , bigint & oth )
         }
 }
 
-ostream & operator<<( ostream & out , bigint & b )
+ostream & operator<< ( ostream & out , bigint & b )
 {
         int c;
-        for( int i = 0; i < b.dig.size(); i++ ) {
-                c = b.dig[i];
+        for( int i = 0 ; i < b.dig.size() ; i++ ) {
+                c = (int)(b.dig[i]);
                 out << c << " ";
         }
-        return out ;
+        return out;
 }
-
 istream & operator>> ( istream & in , bigint & b )
 {
+        string str;
+        in >> str;
+        b = bigint(str);
+        return in;
 }
- /*       string str;
-        cin >> str;
-*/
 bigint & operator++( bigint & ths )
 {
         string s = "1";
